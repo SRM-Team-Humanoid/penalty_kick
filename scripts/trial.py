@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 import rospy
 from penalty_kick.msg import Obstacle
@@ -101,9 +100,8 @@ def checkRed():
     return MultipleObstacles.getRedObstacle()
 
 def sideWalk(steps):
-    #TODO remove all comments after back walk
-    #broken = True
-    #while broken:
+	global broken
+	i =0
         if not broken:
         	print "left"
         	moco.publish(gen_msg(head_down, head_left))
@@ -140,6 +138,7 @@ if __name__ == '__main__':
     rospy.Subscriber("obstacles", Obstacle, appendObstacles)
     rospy.Subscriber("feedback", String, feedback_handler)
     moco = rospy.Publisher('moco', String, queue_size=1)
+    broken = False
     head_up = 90
     head_down = 35
     head_left = 80
@@ -149,7 +148,6 @@ if __name__ == '__main__':
     isRedObstacle = checkRed()
     moco.publish(gen_msg(head_down, 0))
     time.sleep(delay)
-    broken = False
     print isRedObstacle
     raw_input()
     while True:
