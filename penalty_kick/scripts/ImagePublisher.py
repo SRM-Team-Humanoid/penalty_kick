@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import rospy
-from obstacle_run.msg import Obstacle
+from penalty_kick.msg import Obstacle
+from sensor_msgs.msg import Image
+import cv_bridge
+from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import time
 import numpy as np
@@ -10,6 +13,7 @@ class GetSingleObstacle():
     def __init__(self,x,y,w,h,color):
         self.x,self.y,self.w,self.h = x,y,w,h
         self.color = color
+        self.end = x + w
     def getObstacleMessage(self,rame):
         msg = Obstacle()
         msg.frame = frame
@@ -68,7 +72,12 @@ class DefineObstacle():
                     self.drawVisibleRectangleAroundObject(x,y,w,h,f)
                     MultipleObstacles.append(GetSingleObstacle(x,y,w,h,self.color))
 
-
+def getImage(data):
+    bridge = CvBridge()
+    global cv_image
+    cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+    #print cv_image
+    #rospy.spin()
 
 if __name__ == '__main__':
     ran = 30
@@ -83,23 +92,23 @@ if __name__ == '__main__':
     yellow = DefineObstacle(y1,y2)
     blue = DefineObstacle(b1,b2)
     red = DefineObstacle(r1,r2)
-
-    cap = cv2.VideoCapture(1)
+    cv_image = int()
     obstaclesPublisher = rospy.Publisher('obstacles', Obstacle, queue_size = 10)
     yellowObstaclePublisher = rospy.Publisher('ball', Obstacle, queue_size = 10)
+    rospy.Subscriber("image_view/output",Image, getImage)
     rospy.init_node('input_pub', anonymous=True)
     frame = 1
     try:
-    	while True:
-            _,image_frame = cap.read()
-            image_frame = cv2.flip(image_frame,1)
+     	while True:
+            cv2.imshow('image',cv_image)
+            image_frame = cv2.flip(cv_image,1)
             blur = cv2.medianBlur(image_frame,3)
             hsv = cv2.cvtColor(blur,cv2.COLOR_BGR2YUV)
 
             multipleObstacles = []
             yellow.getContoursForObject(hsv,multipleObstacles,image_frame)
             blue.getContoursForObject(hsv,multipleObstacles,image_frame)
-            red.getContoursForObject(hsv,multipleObstacles,image_frame)
+            #red.getContoursForObject(hsv,multipleObstacles,image_frame)
 
             for obstacle in multipleObstacles:
                 msg = obstacle.getObstacleMessage(frame)
@@ -113,8 +122,8 @@ if __name__ == '__main__':
             cv2.imshow("feed",image_frame)
             k = cv2.waitKey(25)
             if k & 0xff == ord('q'):
-                break
+                 break
 
         cv2.destroyAllWindows()
-    except rospy.ROSInterruptException:
+    except :
         print "lele"
