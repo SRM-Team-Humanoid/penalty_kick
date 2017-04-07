@@ -56,7 +56,10 @@ class DefineObstacle():
         mask = cv2.inRange(hsv, (np.array([self.low[0],self.low[1],self.low[2]])), (np.array([self.high[0],self.high[1],self.high[2]])))
         erode = cv2.erode(mask,None,iterations = 3)
         dilate = cv2.dilate(erode,None,iterations = 20)
-        contours,hierarchy = cv2.findContours(dilate,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+        try:
+            im,contours,hierarchy = cv2.findContours(dilate,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+        except:
+            contours,hierarchy = cv2.findContours(dilate,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
         if self.color == 'yellow':
             if len(contours)>0:
                 cnt = max(contours, key=cv2.contourArea)
@@ -71,8 +74,10 @@ class DefineObstacle():
                     x, y, w, h = cv2.boundingRect(cnt)
                     self.drawVisibleRectangleAroundObject(x,y,w,h,f)
                     MultipleObstacles.append(GetSingleObstacle(x,y,w,h,self.color))
-
+start = False
 def getImage(data):
+    global start
+    start = True
     bridge = CvBridge()
     global cv_image
     cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
@@ -99,7 +104,7 @@ if __name__ == '__main__':
     rospy.init_node('input_pub', anonymous=True)
     frame = 1
     try:
-     	while True:
+     	while start:
             cv2.imshow('image',cv_image)
             image_frame = cv2.flip(cv_image,1)
             blur = cv2.medianBlur(image_frame,3)
@@ -125,5 +130,6 @@ if __name__ == '__main__':
                  break
 
         cv2.destroyAllWindows()
-    except :
+    except Exception as e:
+        print e
         print "lele"
