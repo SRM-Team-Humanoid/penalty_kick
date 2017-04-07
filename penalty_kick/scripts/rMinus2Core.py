@@ -7,14 +7,9 @@ from pprint import pprint
 import xml.etree.cElementTree as ET
 from collections import Counter
 from copy import deepcopy
-from readchar import readchar
-import rospy
-from std_msgs.msg import String
-
-path = "/home/arpit/catkin_ws/src/obstacle_run/scripts/"
-
+#from readchar import readchar
 class Dxl(object):
-    def __init__(self,port_id=0, scan_limit=25, lock=-1):
+    def __init__(self,port_id=0, scan_limit=25, lock=-1,debug=False):
         # Initializes Dynamixel Object
         # Port ID is zero by default
         ports = pypot.dynamixel.get_available_ports()
@@ -33,6 +28,9 @@ class Dxl(object):
 
         self.dxl_io = dxl_io
         self.ids = ids
+        speeds = [50 for x in ids]
+        if debug:
+            dxl_io.set_moving_speed(dict(zip(ids,speeds)))
     def setPos(self,pose):
         '''
         for k in pose.keys():
@@ -185,67 +183,6 @@ class Action():
             iter -= 1
 
 
-#--------------------------------------------------------------------------------------------------------------#
-darwin = {1: 90, 2: -90, 3: 67.5, 4: -67.5, 7: 45, 8: -45, 9: 'i', 10: 'i', 13: 'i', 14: 'i', 17: 'i', 18: 'i'}
-abmath = {11: 15, 12: -15, 13: -10, 14: 10, 15: -5, 16: 5}
-hand = {5: 60, 6: -60}
-tree = XmlTree(path+'data.xml')
-tree2 = XmlTree(path+'soccer.xml')
-walk = Action(tree.superparsexml("22 F_S_L",offsets=[darwin]))
-balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin,hand])
-moon_walk = Action(tree2.superparsexml("11 B_L_S", offsets=[darwin]))
-lback = MotionSet(tree2.parsexml("18 B_L_E"), offsets=[darwin])
-rback = MotionSet(tree2.parsexml("17 B_R_E"), offsets=[darwin])
-l_step = MotionSet(tree2.parsexml("10 ff_l_r"), speed=0.5, offsets=[darwin])
-r_step = MotionSet(tree2.parsexml("9 ff_r_l"), speed=0.5, offsets=[darwin])
-l_attack = MotionSet(tree.parsexml("21 L attack"),speed=1.2,offsets=[darwin])
-kick = MotionSet(tree.parsexml("18 L kick"),speed=2,offsets=[darwin])
-f_getup = MotionSet(tree.parsexml("27 F getup"),speed=2.7,offsets=[darwin])
-b_getup = MotionSet(tree.parsexml("28 B getup  "),speed=1.5,offsets=[darwin])
-r_inv = MotionSet(tree2.parsexml("19 RFT"),speed=1.2,offsets=[darwin])
-l_inv = MotionSet(tree2.parsexml("20 LFT"),speed=1.2,offsets=[darwin])
-r_turn = MotionSet(tree2.parsexml("27 RT"),speed=1.2,offsets=[darwin])
-l_turn = MotionSet(tree2.parsexml("28 LT"),speed=1.2,offsets=[darwin])
-w1 = MotionSet(tree.parsexml("32 F_S_L"),speed=2.1,offsets=[darwin])
-w2 = MotionSet(tree.parsexml("33 "),speed=2.1,offsets=[darwin])
-w3 = MotionSet(tree.parsexml("38 F_M_R"),speed=2.7,offsets=[darwin])
-w4 = MotionSet(tree.parsexml("39 "),speed=2.1,offsets=[darwin])
-w5 = MotionSet(tree.parsexml("36 F_M_L"),speed=2.7,offsets=[darwin])
-w6 = MotionSet(tree.parsexml("37 "),speed=2.1,offsets=[darwin])
-boom_walk = Action([l_step,r_step])
-walk_init = Action([w1,w2])
-walk_motion = Action([w3,w4,w5,w6])
-#--------------------------------------------------------------------------------------------------------------#
 
 
 
-
-def callback(data):
-    dir = data.data
-    if dir=='front':
-        rospy.loginfo("Boom Walk!")
-        boom_walk.execute()
-
-    elif dir=='right':
-        r_turn.execute()
-        rospy.loginfo("r_turn")
-
-    elif dir=='left':
-        l_turn.execute()
-        rospy.loginfo("l_turn")
-
-    else:
-        balance.execute()
-        rospy.loginfo("balance")
-
-
-
-if __name__=='__main__':
-    dxl = Dxl(lock=20)
-    state = dxl.getPos()
-    print state
-    raw_input("Proceed?")
-    balance.execute()
-    rospy.init_node('vision_rec', anonymous=True)
-    rospy.Subscriber('image/data', String, callback)
-    rospy.spin()
