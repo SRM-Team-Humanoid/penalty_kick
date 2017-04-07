@@ -105,14 +105,14 @@ if __name__ == '__main__':
     frame = 1
     try:
      	while start:
-            cv2.imshow('image',cv_image)
-            image_frame = cv2.flip(cv_image,1)
-            blur = cv2.medianBlur(image_frame,3)
+            #cv2.imshow('image',cv_image)
+            #image_frame = cv2.flip(cv_image,1)
+            blur = cv2.medianBlur(cv_image,3)
             hsv = cv2.cvtColor(blur,cv2.COLOR_BGR2YUV)
 
             multipleObstacles = []
-            yellow.getContoursForObject(hsv,multipleObstacles,image_frame)
-            blue.getContoursForObject(hsv,multipleObstacles,image_frame)
+            yellow.getContoursForObject(hsv,multipleObstacles,cv_image)
+            blue.getContoursForObject(hsv,multipleObstacles,cv_image)
             #red.getContoursForObject(hsv,multipleObstacles,image_frame)
 
             for obstacle in multipleObstacles:
@@ -124,7 +124,7 @@ if __name__ == '__main__':
                     obstaclesPublisher.publish(msg)
             frame+=1
 
-            cv2.imshow("feed",image_frame)
+            cv2.imshow("feed",cv_image)
             k = cv2.waitKey(25)
             if k & 0xff == ord('q'):
                  break
