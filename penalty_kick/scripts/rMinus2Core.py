@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import random
 import pypot.dynamixel
 import time
@@ -6,7 +7,10 @@ from pprint import pprint
 import xml.etree.cElementTree as ET
 from collections import Counter
 from copy import deepcopy
-#from readchar import readchar
+import rospy
+from std_msgs.msg import String
+
+path = "/home/warr/cdatkin_ws/src/penalty_kick/scripts/"
 
 class Dxl(object):
     def __init__(self,port_id=0, scan_limit=25, lock=-1,debug=False):
@@ -28,7 +32,7 @@ class Dxl(object):
 
         self.dxl_io = dxl_io
         self.ids = ids
-        debug_speeds = [90 for x in ids]
+        debug_speeds = [30 for x in ids]
         unleash = [1023 for x in ids]
         if debug:
             dxl_io.set_moving_speed(dict(zip(ids,debug_speeds)))
@@ -211,39 +215,56 @@ class Head():
 
 
 
-    def pan_left(self,deg=10):
+    def pan_left(self,deg=1.0):
         self.pan_angle += deg
         self.updateState({self.pan_motor:deg})
         self.write()
-        fac = abs(deg) / 10.0
-        time.sleep(0.08*fac)
+        fac = abs(deg)
+        time.sleep(0.008*fac)
 
-    def pan_right(self,deg=-10):
+    def pan_right(self,deg=1.0):
         self.pan_angle -= deg
         self.updateState({self.pan_motor: -1*abs(deg)})
         self.write()
-        fac = abs(deg)/10.0
-        time.sleep(0.08*fac)
+        fac = abs(deg)
+        time.sleep(0.008 * fac)
 
-    def tilt_up(self,deg=10):
+    def tilt_up(self,deg=1.0):
         self.tilt_angle += deg
         self.updateState({self.tilt_motor: deg})
         self.write()
-        fac = abs(deg) / 10.0
-        time.sleep(0.08*fac)
+        fac = abs(deg)
+        time.sleep(0.008*fac)
 
-    def tilt_down(self,deg=-10):
+    def tilt_down(self,deg=1.0):
         self.tilt_angle -= deg
         self.updateState({self.tilt_motor: -1*abs(deg)})
         self.write()
-        fac = abs(deg) / 10.0
-        time.sleep(0.08*fac)
+        fac = abs(deg)
+        time.sleep(0.008 * fac)
+
+    def publish(self,pub):
+        pub.publish(str(self.pan_angle)+" "+str(self.tilt_angle))
 
 
+
+def moco(data):
+    cmdDeg = data.data
+    # print cmdDeg
+    cmd = cmdDeg[0:2]
+    if cmd == 'hl':
+        head.pan_left(float(cmdDeg[2:]))
+    elif cmd == 'hr':
+        head.pan_right(float(cmdDeg[2:]))
+    elif cmd == 'hu':
+        head.tilt_up(float(cmdDeg[2:]))
+    elif cmd == 'hd':
+        head.tilt_down(float(cmdDeg[2:]))
+    head.publish(feedback)
 
 #----------------------------------------------------------------------------------------------------------------
 darwin = {1: 90, 2: -90, 3: 67.5, 4: -67.5, 7: 45, 8: -45, 9: 'i', 10: 'i', 13: 'i', 14: 'i', 17: 'i', 18: 'i'}
-tree = XmlTree('data.xml')
+tree = XmlTree(path+'data.xml')
 balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin])
 kick = MotionSet(tree.parsexml("18 L kick"),speed=2,offsets=[darwin])
 w1 = MotionSet(tree.parsexml("32 F_S_L"),speed=2.1,offsets=[darwin])
@@ -260,11 +281,15 @@ if __name__ == '__main__':
     dxl = Dxl(lock=20,debug=False)
     state = dxl.getPos()
     print state
-    raw_input()
     head = Head(dxl)
-    head.tilt_up(30)
-    head.tilt_down(30)
-    print state
+    raw_input()
+    rospy.init_node('Motion', anonymous=True)
+    rospy.Subscriber("moco", String, moco,queue_size=1)
+    feedback = rospy.Publisher('feedback', String, queue_size=1)
+    while True:
+        print head.tilt_angle,head.pan_angle
+        # rospy.loginfo(head.tilt_angle)
+    rospy.spin()
 
 
 

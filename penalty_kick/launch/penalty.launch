@@ -1,0 +1,10 @@
+<launch>
+	
+	<node pkg="penalty_kick" name="img" type="ImagePublisher.py"/>
+
+	<node pkg="penalty_kick" name="sub" type="ObstacleSubscriber.py" output="screen" />
+
+	<node pkg="penalty_kick" name="core" type="rMinus2Core.py"/>
+	
+	
+</launch>
