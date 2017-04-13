@@ -135,37 +135,43 @@ if __name__ == '__main__':
     isDown=False
     rightpan_index = 0
     isRightmost = False
+    isLeftmost = False
     def pan_left_to_right():
+        global isRightmost, rightpan_index
+
         command_arrray=['hl60','hr60','hr60']
         moco.publish(command_arrray[rightpan_index])
         if rightpan_index==2:
-            global isRightmost = True
+            isRightmost = True
             rightpan_index=0
-        global rightpan_index += 1
+        rightpan_index += 1
     def pan_right_to_left():
+        global isRightmost, leftpan_index
         command_arrray=['hl60','hl60']
         moco.publish(command_arrray[leftpan_index])
         if leftpan_index==1:
-            global isRightmost = False
+            isRightmost = False
             leftpan_index=0
-        global leftpan_index += 1
+        leftpan_index += 1
     while True:
         # while not ball.found:
         while not ball.found:
+            raw_input(">")
             if (not isRightmost):
                 if isDown==True:
                     moco.publish('hu45')
                     moco.publish('hr60')
                 pan_left_to_right()
             else:
-                moco.publish('hd45')
-                isDown=True
+                if not isDown:
+                    moco.publish('hd45')
+                    isDown=True
                 if ball.found:
                     break
                 pan_right_to_left()
             if ball.found:
                 break
-            raw_input(">")
+
             # for c in command_list:
             #     raw_input(">")
             #     moco.publish(c)

@@ -55,6 +55,9 @@ class Dxl(object):
     def getPos(self):
         return Motion(1," ".join(map(str,self.dxl_io.get_present_position(self.ids))),0)
 
+    def publish(self,pub):
+        pub.publish(" ".join(map(str,self.dxl_io.get_present_position([19,20]))))
+
 
 
 class XmlTree(object):
@@ -243,14 +246,21 @@ class Head():
         fac = abs(deg)
         time.sleep(0.008 * fac)
 
-    def publish(self,pub):
-        pub.publish(str(self.pan_angle)+" "+str(self.tilt_angle))
+    def set(self,tilt,pan):
+        t_deg = tilt-self.tilt_angle
+        p_deg = pan-self.pan_angle
+        self.tilt_angle = tilt
+        self.pan_angle = pan
+        self.updateState({self.tilt_motor:t_deg,self.pan_motor:p_deg})
+        self.write()
+        fac = max(abs(t_deg),abs(p_deg))
+        time.sleep(0.008 * fac)
 
 
 
 def moco(data):
     cmdDeg = data.data
-    # print cmdDeg
+    print cmdDeg
     cmd = cmdDeg[0:2]
     if cmd == 'hl':
         head.pan_left(float(cmdDeg[2:]))
@@ -260,12 +270,36 @@ def moco(data):
         head.tilt_up(float(cmdDeg[2:]))
     elif cmd == 'hd':
         head.tilt_down(float(cmdDeg[2:]))
-    head.publish(feedback)
+    elif cmd =='ss':
+        t = cmdDeg.index('T')
+        p = cmdDeg.index('P')
+        tilt = float(cmdDeg[t+1:p])
+        pan = float(cmdDeg[p+1:])
+        head.set(tilt,pan)
+    elif cmd == 'rk':
+        rskick.execute(speed=0.4)
+        balance.execute()
+    elif cmd == 'lk':
+        lskick.execute()
+    elif cmd == 'l1':
+        l_side_init.execute()
+    elif cmd == 'l2':
+        l_side_walk.execute(iter = 1, speed = 1.3)
+    elif cmd =='ba':
+        balance.execute()
 
 #----------------------------------------------------------------------------------------------------------------
 darwin = {1: 90, 2: -90, 3: 67.5, 4: -67.5, 7: 45, 8: -45, 9: 'i', 10: 'i', 13: 'i', 14: 'i', 17: 'i', 18: 'i'}
+arm = {1:45, 2:-45}
+hand = {5: 90, 6: -90}
+hand_open = {5: -60, 6: 60}
+
 tree = XmlTree(path+'data.xml')
+tree2 = XmlTree(path+'soccer.xml')
+tree3 = XmlTree(path+'fight.xml')
 balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin])
+lskick = MotionSet(tree2.parsexml("40 Pass_L"), offsets=[darwin],speed = 1.5)
+rskick = MotionSet(tree2.parsexml("39 Pass_R"), offsets=[darwin],speed = 1.5)
 kick = MotionSet(tree.parsexml("18 L kick"),speed=2,offsets=[darwin])
 w1 = MotionSet(tree.parsexml("32 F_S_L"),speed=2.1,offsets=[darwin])
 w2 = MotionSet(tree.parsexml("33 "),speed=2.1,offsets=[darwin])
@@ -273,6 +307,27 @@ w3 = MotionSet(tree.parsexml("38 F_M_R"),speed=2.7,offsets=[darwin])
 w4 = MotionSet(tree.parsexml("39 "),speed=2.1,offsets=[darwin])
 w5 = MotionSet(tree.parsexml("36 F_M_L"),speed=2.7,offsets=[darwin])
 w6 = MotionSet(tree.parsexml("37 "),speed=2.1,offsets=[darwin])
+
+lside1 = MotionSet(tree.parsexml("80 L_S_L"), offsets=[darwin,hand,arm],speed = 2.1)
+lside2 = MotionSet(tree.parsexml("81 "), offsets=[darwin,hand,arm], speed = 2.1)
+lside3 = MotionSet(tree.parsexml("86 L_M_R"), offsets=[darwin,hand,arm], speed = 2.7)
+lside4 = MotionSet(tree.parsexml("87 "), offsets=[darwin,hand,arm], speed = 2.7)
+lside5 = MotionSet(tree.parsexml("84 L_M_L"), offsets=[darwin,hand,arm], speed = 2.7)
+lside6 = MotionSet(tree.parsexml("85 "), offsets=[darwin,hand,arm], speed = 2.7)
+
+rside1 = MotionSet(tree.parsexml("92 R_S_L"), offsets=[darwin,hand,arm],speed = 2.1)
+rside2 = MotionSet(tree.parsexml("93 "), offsets=[darwin,hand,arm], speed = 2.1)
+rside3 = MotionSet(tree.parsexml("98 R_M_R"), offsets=[darwin,hand,arm], speed = 2.7)
+rside4 = MotionSet(tree.parsexml("99 "), offsets=[darwin,hand,arm], speed = 2.7)
+rside5 = MotionSet(tree.parsexml("96 R_M_L"), offsets=[darwin,hand,arm], speed = 2.7)
+rside6 = MotionSet(tree.parsexml("97 "), offsets=[darwin,hand,arm], speed = 2.7)
+
+l_side_init = Action([lside1,lside2])
+l_side_walk = Action([lside3,lside4,lside5,lside6])
+
+r_side_init = Action([rside1,rside2])
+r_side_walk = Action([rside3,rside4,rside5,rside6])
+
 walk_init = Action([w1,w2])
 walk_motion = Action([w3,w4,w5,w6])
 #------------------------------------------------------------------------------------------------------------------
@@ -281,14 +336,15 @@ if __name__ == '__main__':
     dxl = Dxl(lock=20,debug=False)
     state = dxl.getPos()
     print state
+    balance.execute()
     head = Head(dxl)
-    raw_input()
     rospy.init_node('Motion', anonymous=True)
     rospy.Subscriber("moco", String, moco,queue_size=1)
     feedback = rospy.Publisher('feedback', String, queue_size=1)
     while True:
-        print head.tilt_angle,head.pan_angle
+        #print head.tilt_angle,head.pan_angle
         # rospy.loginfo(head.tilt_angle)
+        dxl.publish(feedback)
     rospy.spin()
 
 
