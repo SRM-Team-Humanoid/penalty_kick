@@ -281,10 +281,8 @@ def moco(data):
         balance.execute()
     elif cmd == 'lk':
         lskick.execute()
-    elif cmd == 'l1':
-        l_side_init.execute()
-    elif cmd == 'l2':
-        l_side_walk.execute(iter = 1, speed = 1.3)
+    elif cmd == 'ls':
+        l_side_step.execute()
     elif cmd =='ba':
         balance.execute()
 
@@ -321,6 +319,10 @@ rside3 = MotionSet(tree.parsexml("98 R_M_R"), offsets=[darwin,hand,arm], speed =
 rside4 = MotionSet(tree.parsexml("99 "), offsets=[darwin,hand,arm], speed = 2.7)
 rside5 = MotionSet(tree.parsexml("96 R_M_L"), offsets=[darwin,hand,arm], speed = 2.7)
 rside6 = MotionSet(tree.parsexml("97 "), offsets=[darwin,hand,arm], speed = 2.7)
+
+
+left_side_step = Action(tree2.superparsexml("19 L",offsets=[darwin]))
+left_side_step = Action(tree2.superparsexml("21 Fst_L",offsets=[darwin]))
 
 l_side_init = Action([lside1,lside2])
 l_side_walk = Action([lside3,lside4,lside5,lside6])

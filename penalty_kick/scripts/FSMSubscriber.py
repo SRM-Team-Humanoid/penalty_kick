@@ -220,9 +220,8 @@ if __name__ == '__main__':
     time.sleep(0.5)
     #moco.publish(gen_msg(60,0))
     time.sleep(0.5)
-    moco.publish('l1')
     while not allignX():
-        moco.publish("l2")
+        moco.publish("ls")
         print ball.x
         time.sleep(1)
     moco.publish("ba")
