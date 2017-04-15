@@ -7,8 +7,6 @@ import time
 import operator
 
 
-
-
 #-----Params-----------------
 
 
@@ -89,6 +87,14 @@ class GetMultipleObstacles():
     def getObjectsByColors(self, objectColor):
         return [ob for ob in self.obstacles_list if ob.color == objectColor]
 
+    def getObstacle(self):
+        for ob in self.obstacles_list:
+            if ob.x+ob.w/2 in range(280,360):
+                print "ob "+ str(ob.x)
+                return True
+        return False
+
+
     def getBall(self):
         Balls = self.getObjectsByColors('yellow')
         if len(Balls) != 0:
@@ -97,7 +103,6 @@ class GetMultipleObstacles():
             return xcen,ycen
         else:
             return None
-
 
 
 
@@ -214,17 +219,22 @@ if __name__ == '__main__':
     moco = rospy.Publisher('moco', String, queue_size=1)
     time.sleep(0.5)
     raw_input()
-    moco.publish(gen_msg(60, 0))
+    if not MultipleObstacles.getObstacle:
+        exit()
+    moco.publish(gen_msg(45, 0))
     raw_input()
-    moco.publish("rk")
-    time.sleep(0.5)
-    #moco.publish(gen_msg(60,0))
-    time.sleep(0.5)
-    while not allignX():
-        moco.publish("ls")
-        print ball.x
+    if ball.found:
+        moco.publish("rk")
         time.sleep(1)
-    moco.publish("ba")
+        moco.publish("ba")
+        moco.publish(gen_msg(60,0))
+        print ball.x
+        time.sleep(0.5)
+        while not allignX():
+            moco.publish("ls")
+            print ball.x
+            time.sleep(1)
+        moco.publish("ba")
         #time.sleep(1)
 
 
@@ -258,5 +268,3 @@ if __name__ == '__main__':
     # moco.publish('none')
     #
     rospy.spin()
-
-
