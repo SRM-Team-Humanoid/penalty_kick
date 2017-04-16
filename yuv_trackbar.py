@@ -31,7 +31,7 @@ while True:
     cv2.imshow("Masking",mask)
     erode = cv2.erode(mask,None,iterations = 3)
     dilate = cv2.dilate(erode,None,iterations = 20)
-    contours,hierarchy = cv2.findContours(dilate,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    im,contours,hierarchy = cv2.findContours(dilate,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
     #if len(contours)>0:
         #c = max(contours, key=cv2.contourArea)

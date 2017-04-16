@@ -8,7 +8,8 @@ def moco(data):
     print cmdDeg
 
 marco = rospy.Publisher('sender', String, queue_size=1)
+marco2 = rospy.Publisher('sender2', String, queue_size=1)
 rospy.init_node('Intermediate')
-rospy.Subscriber('feedback',String,moco)
+marco.publish('lol')
 while True:
-    marco.publish('lol')
+    marco2.publish('lol')

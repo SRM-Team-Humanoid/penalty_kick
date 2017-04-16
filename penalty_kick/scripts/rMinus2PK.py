@@ -10,7 +10,7 @@ from copy import deepcopy
 import rospy
 from std_msgs.msg import String
 
-path = "/home/arpit/ctkin_ws/src/penalty_kick/scripts/"
+path = "/home/warr/cdatkin_ws/src/penalty_kick/scripts/"
 
 class Dxl(object):
     def __init__(self,port_id=0, scan_limit=25, lock=-1,debug=False):
@@ -291,11 +291,11 @@ def moco(data):
     elif cmd == 'sk':
         kick.execute(speed=0.5)
     elif cmd == 'sw':
-        walk_init.execute()
-        time.sleep(0.1)
-        walk_motion.execute()
-        time.sleep(0.1)
-        balance.execute(s)
+        balance.execute()
+        time.sleep(0.5)
+        boom_walk.execute(iter=4)
+        time.sleep(0.5)
+        balance.execute()
 
 #----------------------------------------------------------------------------------------------------------------
 darwin = {1: 90, 2: -90, 3: 67.5, 4: -67.5, 7: 45, 8: -45, 9: 'i', 10: 'i', 13: 'i', 14: 'i', 17: 'i', 18: 'i'}
@@ -306,7 +306,7 @@ hand_open = {5: -60, 6: 60}
 tree = XmlTree(path+'data.xml')
 tree2 = XmlTree(path+'soccer.xml')
 tree3 = XmlTree(path+'fight.xml')
-balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin,hand])
+balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin])
 lskick = MotionSet(tree2.parsexml("40 Pass_L"), offsets=[darwin],speed = 1.5)
 rskick = MotionSet(tree2.parsexml("39 Pass_R"), offsets=[darwin],speed = 1.5)
 #kick = MotionSet(tree.parsexml("19 R kick"),speed=2,offsets=[darwin])
@@ -347,6 +347,9 @@ l_side_walk = Action([lside3,lside4,lside5,lside6])
 r_side_init = Action([rside1,rside2])
 r_side_walk = Action([rside3,rside4,rside5,rside6])
 
+l_step = MotionSet(tree2.parsexml("10 ff_l_r"), speed=1.5, offsets=[darwin])
+r_step = MotionSet(tree2.parsexml("9 ff_r_l"), speed=1.5, offsets=[darwin])
+boom_walk = Action([l_step,r_step])
 walk_init = Action([w1,w2])
 walk_motion = Action([w3,w4,w5,w6])
 #------------------------------------------------------------------------------------------------------------------
