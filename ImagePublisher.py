@@ -1,10 +1,13 @@
-#!/usr/bin/env python
-import rospy
-from penalty_kick.msg import Obstacle
+##!/usr/bin/env python
+#import rospy
+#from penalty_kick.msg import Obstacle
 import cv2
 import time
 import numpy as np
 import operator
+from imutils.video import WebcamVideoStream
+import imutils
+import cv2
 
 class GetSingleObstacle():
     def __init__(self,x,y,w,h,color):
@@ -85,15 +88,15 @@ if __name__ == '__main__':
     blue = DefineObstacle(b1,b2)
     red = DefineObstacle(r1,r2)
 
-    cap = cv2.VideoCapture(1)
-    obstaclesPublisher = rospy.Publisher('obstacles', Obstacle, queue_size = 10)
-    yellowObstaclePublisher = rospy.Publisher('ball', Obstacle, queue_size = 10)
-    rospy.init_node('input_pub', anonymous=True)
+    vs = WebcamVideoStream(src=0).start()
+    #obstaclesPublisher = rospy.Publisher('obstacles', Obstacle, queue_size = 10)
+    #yellowObstaclePublisher = rospy.Publisher('ball', Obstacle, queue_size = 10)
+    #rospy.init_node('input_pub', anonymous=True)
     frame = 1
     try:
     	while True:
-            _,image_frame = cap.read()
-            image_frame = cv2.flip(image_frame,1)
+            frame = vs.read()
+            image_frame = cv2.flip(frame,1)
             blur = cv2.medianBlur(image_frame,3)
             hsv = cv2.cvtColor(blur,cv2.COLOR_BGR2YUV)
 
@@ -103,12 +106,14 @@ if __name__ == '__main__':
             #red.getContoursForObject(hsv,multipleObstacles,image_frame)
 
             for obstacle in multipleObstacles:
-                msg = obstacle.getObstacleMessage(frame)
+                #msg = obstacle.getObstacleMessage(frame)
                 if obstacle.color == 'yellow':
-                    yellowObstaclePublisher.publish(msg)
-                    rospy.loginfo(msg)
+                    print "ge"
+                    #yellowObstaclePublisher.publish(msg)
+                    #rospy.loginfo(msg)
                 else:
-                    obstaclesPublisher.publish(msg)
+                    print "Red"
+                    #obstaclesPublisher.publish(msg)
             frame+=1
 
             cv2.imshow("feed",image_frame)
@@ -117,5 +122,5 @@ if __name__ == '__main__':
                 break
 
         cv2.destroyAllWindows()
-    except rospy.ROSInterruptException:
-        print "lele"
+    except Exception.e:
+	print e
