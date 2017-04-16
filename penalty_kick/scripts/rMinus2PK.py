@@ -284,8 +284,18 @@ def moco(data):
         lskick.execute()
     elif cmd == 'ls':
         left_side_step.execute()
+    elif cmd == 'rs':
+        right_side_step.execute()
     elif cmd =='ba':
         balance.execute()
+    elif cmd == 'sk':
+        kick.execute(speed=0.5)
+    elif cmd == 'sw':
+        walk_init.execute()
+        time.sleep(0.1)
+        walk_motion.execute()
+        time.sleep(0.1)
+        balance.execute(s)
 
 #----------------------------------------------------------------------------------------------------------------
 darwin = {1: 90, 2: -90, 3: 67.5, 4: -67.5, 7: 45, 8: -45, 9: 'i', 10: 'i', 13: 'i', 14: 'i', 17: 'i', 18: 'i'}
@@ -299,7 +309,7 @@ tree3 = XmlTree(path+'fight.xml')
 balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin,hand])
 lskick = MotionSet(tree2.parsexml("40 Pass_L"), offsets=[darwin],speed = 1.5)
 rskick = MotionSet(tree2.parsexml("39 Pass_R"), offsets=[darwin],speed = 1.5)
-kick = MotionSet(tree.parsexml("18 L kick"),speed=2,offsets=[darwin])
+#kick = MotionSet(tree.parsexml("19 R kick"),speed=2,offsets=[darwin])
 w1 = MotionSet(tree.parsexml("32 F_S_L"),speed=2.1,offsets=[darwin])
 w2 = MotionSet(tree.parsexml("33 "),speed=2.1,offsets=[darwin])
 w3 = MotionSet(tree.parsexml("38 F_M_R"),speed=2.7,offsets=[darwin])
@@ -325,8 +335,11 @@ rside5 = MotionSet(tree.parsexml("96 R_M_L"), offsets=[darwin,hand,arm], speed =
 rside6 = MotionSet(tree.parsexml("97 "), offsets=[darwin,hand,arm], speed = 2.7)
 
 
-left_side_step = Action(tree2.superparsexml("19 L",offsets=[darwin]))
+# left_side_step = Action(tree2.superparsexml("19 L",offsets=[darwin]))
 left_side_step = Action(tree2.superparsexml("21 Fst_L",offsets=[darwin]))
+right_side_step = Action(tree2.superparsexml("20 Fst_R",offsets=[darwin]))
+
+kick = Action(tree2.superparsexml("26 F_PShoot_R",offsets = [darwin]))
 
 l_side_init = Action([lside1,lside2])
 l_side_walk = Action([lside3,lside4,lside5,lside6])

@@ -109,17 +109,16 @@ class GetMultipleObstacles():
 
 
 def allignHead():
-    global pan_angle,tilt_angle
     if ball.x < 210:
         try:
             deg = 1 - (ball.x / 212.0)
-            moco.publish('hr' + str(deg))
+            moco.publish('hl' + str(deg))
         except:
             pass
     elif ball.x > 420:
         try:
             deg = (ball.x - 418) / 222.0
-            moco.publish('hl' + str(deg))
+            moco.publish('hr' + str(deg))
         except:
             pass
     elif ball.y < 160:
@@ -196,6 +195,31 @@ scan_fsm.add(State(state='exit',transdict={'fo': 'exit', 'nofo': 'Start'}, val={
 
 def gen_msg(ta,pa):
     return "ssT" + str(ta)+"P"+str(pa)
+#
+# def simple_scan():
+#     moco.publish(gen_msg(75, 0))
+#     time.sleep(1)
+#     if ball.found:
+#         return 'center'
+
+def sweep():
+    for tilt in range(100,40,-20):
+        for pan in range(60,-60,-30):
+            moco.publish(gen_msg(tilt, pan))
+            time.sleep(1)
+            if ball.found:
+                allignHead()
+                return
+
+
+def finalAllign():
+    while not ball.center:
+        "Alligning..."
+        allignHead()
+        if not ball.found:
+            break
+    return
+
 
 
 
@@ -205,7 +229,7 @@ def gen_msg(ta,pa):
 #     scan_fsm.update(trig)
 
 def float_check(a,b):
-    if abs(a-b)<2:
+    if abs(a-b)<10:
         return True
     return False
 
@@ -218,24 +242,54 @@ if __name__ == '__main__':
     rospy.Subscriber("feedback", String, feedback_handler)
     moco = rospy.Publisher('moco', String, queue_size=1)
     time.sleep(0.5)
-    raw_input()
-    if not MultipleObstacles.getObstacle:
-        exit()
-    moco.publish(gen_msg(45, 0))
-    raw_input()
-    if ball.found:
-        moco.publish("rk")
-        time.sleep(1)
-        moco.publish("ba")
-        moco.publish(gen_msg(60,0))
+    raw_input("Kick>")
+    #check =  MultipleObstacles.getObstacle()
+
+
+    # if ball.found:
+    #     if check == False:
+    #         moco.publish("sk")
+    #     else:
+    #         moco.publish("rk")
+
+    moco.publish(gen_msg(90, 0))
+    moco.publish("rk")
+    time.sleep(1)
+    moco.publish("ba")
+    time.sleep(0.5)
+    raw_input("Begin")
+    while not ball.found:
+        sweep()
+    if pan_angle > 0:
+        step = "ls"
+    else:
+        step = "rs"
+
+    while not float_check(pan_angle,0):
+        print "Chala"
+        moco.publish(step)
         print ball.x
-        time.sleep(0.5)
+        time.sleep(1)
+        finalAllign()
+        time.sleep(1)
+    moco.publish("ba")
+
+    raw_input()
+    while tilt_angle>50:
+        moco.publish("sw")
         while not allignX():
-            moco.publish("ls")
-            print ball.x
-            time.sleep(1)
-        moco.publish("ba")
-        #time.sleep(1)
+            if ball.x < 210:
+                moco.publish("ls")
+                time.sleep(0.4)
+            else:
+                moco.publish("rs")
+                time.sleep(0.4)
+        finalAllign()
+        time.sleep(0.4)
+    raw_input()
+    moco.publish("sk")
+
+
 
 
 

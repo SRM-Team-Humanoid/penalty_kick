@@ -92,15 +92,21 @@ if __name__ == '__main__':
     yellow = DefineObstacle(y1,y2)
     blue = DefineObstacle(b1,b2)
     red = DefineObstacle(r1,r2)
-
-    cap = cv2.VideoCapture(1)
+    for cp in range(1,6):
+        try:
+            print "lllllllll",cp
+            cap = cv2.VideoCapture(cp)
+            _,image_frame = cap.read()
+            break
+        except:
+            continue
     obstaclesPublisher = rospy.Publisher('obstacles', Obstacle, queue_size = 1)
     rospy.init_node('input_pub', anonymous=True)
     frame = 1
     try:
     	while True:
             _,image_frame = cap.read()
-            image_frame = cv2.flip(image_frame,1)
+            #image_frame = cv2.flip(image_frame,1)
             blur = cv2.medianBlur(image_frame,3)
             hsv = cv2.cvtColor(blur,cv2.COLOR_BGR2YUV)
 
