@@ -213,11 +213,12 @@ def sweep():
 
 
 def finalAllign():
+    print "Alligning..."
     while not ball.center:
-        print "Alligning..."
         allignHead()
         # if not ball.found:
         #     break
+    print "Alligned"
     return
 
 
@@ -275,18 +276,20 @@ if __name__ == '__main__':
     moco.publish("ba")
 
     raw_input()
-    while tilt_angle>50:
+    while tilt_angle>55:
+        print tilt_angle
         moco.publish("sw")
-        # while not allignX():
-        #     if ball.x < 210:
-        #         moco.publish("ls")
-        #         time.sleep(0.4)
-        #     else:
-        #         moco.publish("rs")
-        #         time.sleep(0.4)
-        # finalAllign()
-        time.sleep(0.4)
-    raw_input()
+        time.sleep(1)
+        while not allignX():
+            if ball.x < 210:
+                moco.publish("ls")
+                time.sleep(0.4)
+            else:
+                moco.publish("rs")
+                time.sleep(0.4)
+        finalAllign()
+        time.sleep(0.5)
+    raw_input("ho gaya mera")
     moco.publish("sk")
 
 

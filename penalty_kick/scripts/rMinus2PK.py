@@ -10,7 +10,7 @@ from copy import deepcopy
 import rospy
 from std_msgs.msg import String
 
-path = "/home/warr/cdatkin_ws/src/penalty_kick/scripts/"
+path = "/home/arpit/ctkin_ws/src/penalty_kick/scripts/"
 
 class Dxl(object):
     def __init__(self,port_id=0, scan_limit=25, lock=-1,debug=False):
@@ -293,7 +293,8 @@ def moco(data):
     elif cmd == 'sw':
         balance.execute()
         time.sleep(0.5)
-        boom_walk.execute(iter=4)
+        l_step.execute(speed = 2)
+        r_step.execute(speed = 2)
         time.sleep(0.5)
         balance.execute()
 
@@ -319,6 +320,8 @@ w6 = MotionSet(tree.parsexml("37 "),speed=2.1,offsets=[darwin])
 r_turn = MotionSet(tree2.parsexml("27 RT"),speed=1.2,offsets=[darwin])
 l_turn = MotionSet(tree2.parsexml("28 LT"),speed=1.2,offsets=[darwin])
 
+l_step = Action(tree.superparsexml("24 F_E_L",offsets=[darwin]))
+r_step = Action(tree.superparsexml("25 F_E_R",offsets=[darwin]))
 
 lside1 = MotionSet(tree.parsexml("80 L_S_L"), offsets=[darwin,hand,arm],speed = 2.1)
 lside2 = MotionSet(tree.parsexml("81 "), offsets=[darwin,hand,arm], speed = 2.1)
@@ -347,8 +350,8 @@ l_side_walk = Action([lside3,lside4,lside5,lside6])
 r_side_init = Action([rside1,rside2])
 r_side_walk = Action([rside3,rside4,rside5,rside6])
 
-l_step = MotionSet(tree2.parsexml("10 ff_l_r"), speed=1.5, offsets=[darwin])
-r_step = MotionSet(tree2.parsexml("9 ff_r_l"), speed=1.5, offsets=[darwin])
+# l_step = MotionSet(tree2.parsexml("10 ff_l_r"), speed=1.5, offsets=[darwin])
+# r_step = MotionSet(tree2.parsexml("9 ff_r_l"), speed=1.5, offsets=[darwin])
 boom_walk = Action([l_step,r_step])
 walk_init = Action([w1,w2])
 walk_motion = Action([w3,w4,w5,w6])
