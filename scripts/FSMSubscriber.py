@@ -214,12 +214,38 @@ def sweep():
 
 def finalAllign():
     print "Alligning..."
+    a = 0
     while not ball.center:
         allignHead()
+        if not ball.found:
+            a = time.time() - a
+        else:
+            a = 0
+        if a > 5:
+            return "fail"
         # if not ball.found:
         #     break
     print "Alligned"
     return
+
+def find():
+    while not ball.found:
+        sweep()
+    if pan_angle > 0:
+        step = "ls"
+    else:
+        step = "rs"
+    while not float_check(pan_angle,0):
+        print "Chala"
+        k = finalAllign()
+        if k == "fail":
+            return
+        time.sleep(1)
+        moco.publish(step)
+        print ball.x
+        time.sleep(1)
+    moco.publish("ba")
+
 
 
 
@@ -243,10 +269,10 @@ if __name__ == '__main__':
     rospy.Subscriber("feedback", String, feedback_handler)
     moco = rospy.Publisher('moco', String, queue_size=1)
     time.sleep(0.5)
-    raw_input("Kick>")
+    # raw_input("Kick>")
+
+
     #check =  MultipleObstacles.getObstacle()
-
-
     # if ball.found:
     #     if check == False:
     #         moco.publish("sk")
@@ -254,39 +280,17 @@ if __name__ == '__main__':
     #         moco.publish("rk")
 
     moco.publish(gen_msg(90, 0))
-    moco.publish("rk")
-    time.sleep(1)
+    # moco.publish("rk")
+    # time.sleep(1)
     moco.publish("ba")
     time.sleep(0.5)
     raw_input("Begin")
-    while not ball.found:
-        sweep()
-    if pan_angle > 0:
-        step = "ls"
-    else:
-        step = "rs"
-
-    while not float_check(pan_angle,0):
-        print "Chala"
-        moco.publish(step)
-        print ball.x
-        time.sleep(1)
-        finalAllign()
-        time.sleep(1)
-    moco.publish("ba")
-
-    raw_input()
-    while tilt_angle>55:
+    while tilt_angle>65:
+        while not allignX():
+            find()
         print tilt_angle
         moco.publish("sw")
         time.sleep(1)
-        while not allignX():
-            if ball.x < 210:
-                moco.publish("ls")
-                time.sleep(0.4)
-            else:
-                moco.publish("rs")
-                time.sleep(0.4)
         finalAllign()
         time.sleep(0.5)
     raw_input("ho gaya mera")
