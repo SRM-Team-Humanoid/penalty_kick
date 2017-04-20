@@ -78,14 +78,14 @@ class DefineObstacle():
 
 if __name__ == '__main__':
     ran = 30
-    b1 = [85-ran,191-ran,104-ran]
-    b2 = [85+ran,191+ran,104+ran]
+    b1 = [103-ran,186-ran,94-ran]
+    b2 = [103+ran,186+ran,94+ran]
     # y1 = [139-ran,141-ran,45-ran]
     # y2 = [139+ran,141+ran,45+ran]
     y1 = [184 - ran-20, 123 - ran, 72 - ran]
     y2 = [184 + ran+20, 123 + ran, 72 + ran]
-    r1 = [61-ran,121-ran,181-ran]
-    r2 = [61+ran,121+ran,181+ran]
+    r1 = [134-ran,121-ran,208-ran]
+    r2 = [134+ran,121+ran,208+ran]
 
     yellow = DefineObstacle(y1,y2)
     blue = DefineObstacle(b1,b2)

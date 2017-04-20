@@ -27,7 +27,7 @@ while True:
     cv2.imshow("g1",img_yuv)
     #img_yuv[:,:,2] = cv2.equalizeHist(img_yuv[:,:,2])
     #cv2.imshow("g2",img_yuv
-    mask = cv2.inRange(img_yuv, (np.array([y-30,u-30,v-30])), (np.array([y+30,u+30,v+30])))
+    mask = cv2.inRange(img_yuv, (np.array([y-45,u-30,v-30])), (np.array([y+45,u+30,v+30])))
     cv2.imshow("Masking",mask)
     erode = cv2.erode(mask,None,iterations = 3)
     dilate = cv2.dilate(erode,None,iterations = 20)

@@ -43,6 +43,42 @@ class Ball():
                 self.center = False
             #To Implement Tilt Thresh Here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<------
 
+class BlueObstacle():
+    def __init__(self):
+        self.found = False
+        self.ledge = None
+        self.redge = None
+
+    def update(self,obstacle):
+        if obstacle==None:
+            self.found = False
+            self.ledge = None
+            self.redge = None
+        else:
+            self.found = True
+            self.ledge = obstacle[0]
+            self.redge = obstacle[1]
+
+class RedObstacle():
+    def __init__(self):
+        self.found = False
+
+    def update(self,obstacle):
+        if obstacle==False:
+            self.found = False
+        else:
+            self.found = True
+class YellowObstacle():
+    def __init__(self):
+        self.found = False
+
+    def update(self,obstacle):
+        if obstacle==False:
+            self.found = False
+        else:
+            self.found = True
+
+
 class State(object):
     def __init__(self,state,transdict={},val={}):
         self.state = state
@@ -80,7 +116,6 @@ class FSM(object):
         self.current = self.Find(self.current.transit(trigger))
         self.prev = temp
 
-
 class GetMultipleObstacles():
     def __init__(self):
         self.obstacles_list = []
@@ -104,7 +139,28 @@ class GetMultipleObstacles():
         else:
             return None
 
+    def getBlueObstacle(self):
+        obstacles = self.getObjectsByColors('blue')
+        if len(obstacles) != 0:
+            ledge = obstacles[0]
+            redge = obstacles[0].x+obstacles[0].w
+            return ledge,redge
+        else:
+            return None
 
+    def getRedObstacle(self):
+        obstacles = self.getObjectsByColors('red')
+        if len(obstacles) == 0:
+            return False
+        else:
+            return True
+
+    def getYellowObstacle(self):
+        obstacles = self.getObjectsByColors('yellow')
+        if len(obstacles) == 0:
+            return False
+        else:
+            return True
 
 
 
@@ -144,6 +200,18 @@ def ifBallFound():
     else:
         return 'nofo'
 
+def ifBlueObstacleFound():
+    if blueObstacle.found:
+        return 'fo'
+    else:
+        return 'nofo'
+
+def ifOtherObstacleFound():
+    if otherObstacle.found:
+        return 'fo'
+    else:
+        return 'nofo'
+
 def allignX():
     return ball.x in range(210, 420)
 
@@ -156,6 +224,9 @@ def appendObstacles(msg):
             BufferObstacles = GetMultipleObstacles()
     BufferObstacles.obstacles_list.append(SingleObstacle)
     ball.update(MultipleObstacles.getBall())
+    blueObstacle.update(MultipleObstacles.getBlueObstacle())
+    redObstacle.update(MultipleObstacles.getRedObstacle())
+    yellowObstacle.update(MultipleObstacles.getYellowObstacle())
     ball_buffer.append(ifBallFound())
     prevFrame = msg.frame
 
@@ -180,20 +251,23 @@ def getBallStatus():
 
 
 ball = Ball()
+blueObstacle = BlueObstacle()
+yellowObstacle = YellowObstacle()
+redObstacle = RedObstacle()
 pan_angle = 0
 tilt_angle = 90
 command = 'hd45'
 ball_buffer = []
-
-root  = State(state = 'Start',transdict={'fo':'exit','nofo':'L1'},val={'tilt':90,'pan':0})
-scan_fsm = FSM(root)
-scan_fsm.add(State(state='L1', transdict={'fo': 'exit', 'nofo': 'CU'}, val={'tilt': 90, 'pan': 60}))
-scan_fsm.add(State(state='CU', transdict={'fo': 'exit', 'nofo': 'R1'}, val={'tilt': 90, 'pan': 0}))
-scan_fsm.add(State(state='R1', transdict={'fo': 'exit', 'nofo': 'R2'}, val={'tilt': 90, 'pan': -60}))
-scan_fsm.add(State(state='R2', transdict={'fo': 'exit', 'nofo': 'CD'}, val={'tilt': 45, 'pan': -60}))
-scan_fsm.add(State(state='CD', transdict={'fo': 'exit', 'nofo': 'L2'}, val={'tilt': 45, 'pan': 0}))
-scan_fsm.add(State(state='L2', transdict={'fo': 'exit', 'nofo': 'Start'}, val={'tilt': 45, 'pan': 60}))
-scan_fsm.add(State(state='exit',transdict={'fo': 'exit', 'nofo': 'Start'}, val={'tilt': 90, 'pan': 0}))
+#
+# root  = State(state = 'Start',transdict={'fo':'exit','nofo':'L1'},val={'tilt':90,'pan':0})
+# scan_fsm = FSM(root)
+# scan_fsm.add(State(state='L1', transdict={'fo': 'exit', 'nofo': 'CU'}, val={'tilt': 90, 'pan': 60}))
+# scan_fsm.add(State(state='CU', transdict={'fo': 'exit', 'nofo': 'R1'}, val={'tilt': 90, 'pan': 0}))
+# scan_fsm.add(State(state='R1', transdict={'fo': 'exit', 'nofo': 'R2'}, val={'tilt': 90, 'pan': -60}))
+# scan_fsm.add(State(state='R2', transdict={'fo': 'exit', 'nofo': 'CD'}, val={'tilt': 45, 'pan': -60}))
+# scan_fsm.add(State(state='CD', transdict={'fo': 'exit', 'nofo': 'L2'}, val={'tilt': 45, 'pan': 0}))
+# scan_fsm.add(State(state='L2', transdict={'fo': 'exit', 'nofo': 'Start'}, val={'tilt': 45, 'pan': 60}))
+# scan_fsm.add(State(state='exit',transdict={'fo': 'exit', 'nofo': 'Start'}, val={'tilt': 90, 'pan': 0}))
 
 
 def gen_msg(ta,pa):
@@ -269,6 +343,8 @@ def float_check(a,b):
 
 if __name__ == '__main__':
     prevFrame = 0
+    isYellowObstacle = False
+    escapedBlue = False
     MultipleObstacles = GetMultipleObstacles()
     BufferObstacles = GetMultipleObstacles()
     rospy.init_node('Intermediate', anonymous=True)
@@ -286,26 +362,56 @@ if __name__ == '__main__':
     #     else:
     #         moco.publish("rk")
 
-    moco.publish(gen_msg(90, 0))
+    moco.publish(gen_msg(60, 0))
     time.sleep(0.5)
-    moco.publish("rk")
-    time.sleep(2)
 
+    while True:
 
-    moco.publish("ba")
-    time.sleep(0.5)
-    raw_input("Begin")
-    while tilt_angle>32.0:
-        while not allignX():
-            find()
-        print tilt_angle
+        # while not blueObstacle.found:
+        #     moco.publish(gen_msg(80, 0))
+        #     while redObstacle.found:
+        #         moco.publish("r+s")
+        #         moco.publish("rs")
+        #         moco.publish("rs")
+        #         time.sleep(.5)
+        #     moco.publish(gen_msg(60, 0))
+        #     if not blueObstacle.found:
+        #         moco.publish("sw")
+        #     time.sleep(1)
+        escapedBlue = False
+        escapedRed = False
+        isYellowObstacle = False
+        moco.publish(gen_msg(80, 0))
+        while redObstacle.found:
+            direction="rs"
+            moco.publish(direction)
+            moco.publish(direction)
+            moco.publish(direction)
+            time.sleep(.5)
+        moco.publish(gen_msg(60, 0))
+        while blueObstacle.found or yellowObstacle.found:
+            if yellowObstacle.found:
+                isYellowObstacle = True
+            if isYellowObstacle:
+                moco.publish("rs")
+            else:
+                moco.publish("ls")
+            time.sleep(0.5)
+            escapedBlue = True
+        if escapedBlue:
+            moco.publish(gen_msg(80, 0))
+            while redObstacle.found:
+                direction="ls"
+                moco.publish(direction)
+                moco.publish(direction)
+                moco.publish(direction)
+                time.sleep(.5)
+                escapedRed = True
+            moco.publish(gen_msg(60, 0))
+        if escapedRed:
+            continue
         moco.publish("sw")
         time.sleep(1)
-        finalAllign()
-        time.sleep(0.5)
-    print("ho gaya mera")
-    moco.publish("sk")
-    time.sleep(2)
 
 
 
