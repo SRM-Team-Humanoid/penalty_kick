@@ -60,7 +60,7 @@ class DefineObstacle():
 
         if self.color == 'blue':
             for cnt in contours:
-                if cv2.contourArea(cnt) > 1000:
+                if cv2.contourArea(cnt) > 100:
                     x, y, w, h = cv2.boundingRect(cnt)
                     self.drawVisibleRectangleAroundObject(x,y,w,h,f)
                     MultipleObstacles.append(GetSingleObstacle(x,y,w,h,self.color))
@@ -82,8 +82,8 @@ if __name__ == '__main__':
     b2 = [85+ran,191+ran,104+ran]
     # y1 = [139-ran,141-ran,45-ran]
     # y2 = [139+ran,141+ran,45+ran]
-    y1 = [133 - ran, 108 - ran/2, 88 - ran]
-    y2 = [133 + ran, 108 + ran/2, 88 + ran]
+    y1 = [184 - ran-20, 123 - ran, 72 - ran]
+    y2 = [184 + ran+20, 123 + ran, 72 + ran]
     r1 = [61-ran,121-ran,181-ran]
     r2 = [61+ran,121+ran,181+ran]
 
@@ -95,6 +95,8 @@ if __name__ == '__main__':
             print "lllllllll",cp
             cap = cv2.VideoCapture(cp)
             _,image_frame = cap.read()
+            blur = cv2.medianBlur(image_frame,3)
+            hsv = cv2.cvtColor(blur,cv2.COLOR_BGR2YUV)
             break
         except:
             continue

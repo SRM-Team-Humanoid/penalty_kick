@@ -204,24 +204,26 @@ def gen_msg(ta,pa):
 
 def sweep():
     for tilt in range(100,40,-20):
-        for pan in range(60,-60,-30):
+        for pan in range(60,-120,-60):
             moco.publish(gen_msg(tilt, pan))
-            time.sleep(1)
+            time.sleep(1.5)
             if ball.found:
-                allignHead()
-                return
+                finalAllign()
+                return 'found'
 
 
 def finalAllign():
     print "Alligning..."
-    a = 0
+    start_time = time.time()
+    diff = 0
     while not ball.center:
         allignHead()
         if not ball.found:
-            a = time.time() - a
+            diff = time.time() - start_time
         else:
-            a = 0
-        if a > 5:
+            diff = 0
+            start_time = time.time()
+        if diff > 5:
             return "fail"
         # if not ball.found:
         #     break
@@ -230,7 +232,8 @@ def finalAllign():
 
 def find():
     while not ball.found:
-        sweep()
+         if sweep() == 'found':
+             break
     if pan_angle > 0:
         step = "ls"
     else:
@@ -280,8 +283,11 @@ if __name__ == '__main__':
     #         moco.publish("rk")
 
     moco.publish(gen_msg(90, 0))
-    # moco.publish("rk")
-    # time.sleep(1)
+    time.sleep(0.5)
+    moco.publish("rk")
+    time.sleep(2)
+
+
     moco.publish("ba")
     time.sleep(0.5)
     raw_input("Begin")
@@ -293,8 +299,9 @@ if __name__ == '__main__':
         time.sleep(1)
         finalAllign()
         time.sleep(0.5)
-    raw_input("ho gaya mera")
+    print("ho gaya mera")
     moco.publish("sk")
+    time.sleep(2)
 
 
 
