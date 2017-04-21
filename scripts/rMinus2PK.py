@@ -10,7 +10,7 @@ from copy import deepcopy
 import rospy
 from std_msgs.msg import String
 
-path = "/home/warr/catkin_ws/src/penalty_kick/scripts/"
+path = "/home/arpit/ctkin_ws/src/penalty_kick/scripts/"
 
 class Dxl(object):
     def __init__(self,port_id=0, scan_limit=25, lock=-1,debug=False):
@@ -307,54 +307,48 @@ hand_open = {5: -60, 6: 60}
 tree = XmlTree(path+'data.xml')
 tree2 = XmlTree(path+'soccer.xml')
 tree3 = XmlTree(path+'fight.xml')
-balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin])
-lskick = MotionSet(tree2.parsexml("40 Pass_L"), offsets=[darwin],speed = 1.5)
-rskick = MotionSet(tree2.parsexml("39 Pass_R"), offsets=[darwin],speed = 1.5)
+balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin,hand])
+lskick = MotionSet(tree2.parsexml("40 Pass_L"), offsets=[darwin,hand],speed = 1.5)
+rskick = MotionSet(tree2.parsexml("39 Pass_R"), offsets=[darwin,hand],speed = 1.5)
 #kick = MotionSet(tree.parsexml("19 R kick"),speed=2,offsets=[darwin])
-w1 = MotionSet(tree.parsexml("32 F_S_L"),speed=2.1,offsets=[darwin])
-w2 = MotionSet(tree.parsexml("33 "),speed=2.1,offsets=[darwin])
-w3 = MotionSet(tree.parsexml("38 F_M_R"),speed=2.7,offsets=[darwin])
-w4 = MotionSet(tree.parsexml("39 "),speed=2.1,offsets=[darwin])
-w5 = MotionSet(tree.parsexml("36 F_M_L"),speed=2.7,offsets=[darwin])
-w6 = MotionSet(tree.parsexml("37 "),speed=2.1,offsets=[darwin])
 r_turn = MotionSet(tree2.parsexml("27 RT"),speed=1.2,offsets=[darwin])
 l_turn = MotionSet(tree2.parsexml("28 LT"),speed=1.2,offsets=[darwin])
 
-l_step = Action(tree.superparsexml("24 F_E_L",offsets=[darwin]))
-r_step = Action(tree.superparsexml("25 F_E_R",offsets=[darwin]))
+l_step = Action(tree.superparsexml("24 F_E_L",offsets=[darwin,hand]))
+r_step = Action(tree.superparsexml("25 F_E_R",offsets=[darwin,hand]))
 
-lside1 = MotionSet(tree.parsexml("80 L_S_L"), offsets=[darwin,hand,arm],speed = 2.1)
-lside2 = MotionSet(tree.parsexml("81 "), offsets=[darwin,hand,arm], speed = 2.1)
-lside3 = MotionSet(tree.parsexml("86 L_M_R"), offsets=[darwin,hand,arm], speed = 2.7)
-lside4 = MotionSet(tree.parsexml("87 "), offsets=[darwin,hand,arm], speed = 2.7)
-lside5 = MotionSet(tree.parsexml("84 L_M_L"), offsets=[darwin,hand,arm], speed = 2.7)
-lside6 = MotionSet(tree.parsexml("85 "), offsets=[darwin,hand,arm], speed = 2.7)
-
-rside1 = MotionSet(tree.parsexml("92 R_S_L"), offsets=[darwin,hand,arm],speed = 2.1)
-rside2 = MotionSet(tree.parsexml("93 "), offsets=[darwin,hand,arm], speed = 2.1)
-rside3 = MotionSet(tree.parsexml("98 R_M_R"), offsets=[darwin,hand,arm], speed = 2.7)
-rside4 = MotionSet(tree.parsexml("99 "), offsets=[darwin,hand,arm], speed = 2.7)
-rside5 = MotionSet(tree.parsexml("96 R_M_L"), offsets=[darwin,hand,arm], speed = 2.7)
-rside6 = MotionSet(tree.parsexml("97 "), offsets=[darwin,hand,arm], speed = 2.7)
+# lside1 = MotionSet(tree.parsexml("80 L_S_L"), offsets=[darwin,hand,arm],speed = 2.1)
+# lside2 = MotionSet(tree.parsexml("81 "), offsets=[darwin,hand,arm], speed = 2.1)
+# lside3 = MotionSet(tree.parsexml("86 L_M_R"), offsets=[darwin,hand,arm], speed = 2.7)
+# lside4 = MotionSet(tree.parsexml("87 "), offsets=[darwin,hand,arm], speed = 2.7)
+# lside5 = MotionSet(tree.parsexml("84 L_M_L"), offsets=[darwin,hand,arm], speed = 2.7)
+# lside6 = MotionSet(tree.parsexml("85 "), offsets=[darwin,hand,arm], speed = 2.7)
+#
+# rside1 = MotionSet(tree.parsexml("92 R_S_L"), offsets=[darwin,hand,arm],speed = 2.1)
+# rside2 = MotionSet(tree.parsexml("93 "), offsets=[darwin,hand,arm], speed = 2.1)
+# rside3 = MotionSet(tree.parsexml("98 R_M_R"), offsets=[darwin,hand,arm], speed = 2.7)
+# rside4 = MotionSet(tree.parsexml("99 "), offsets=[darwin,hand,arm], speed = 2.7)
+# rside5 = MotionSet(tree.parsexml("96 R_M_L"), offsets=[darwin,hand,arm], speed = 2.7)
+# rside6 = MotionSet(tree.parsexml("97 "), offsets=[darwin,hand,arm], speed = 2.7)
 
 
 # left_side_step = Action(tree2.superparsexml("19 L",offsets=[darwin]))
-left_side_step = Action(tree2.superparsexml("21 Fst_L",offsets=[darwin]))
-right_side_step = Action(tree2.superparsexml("20 Fst_R",offsets=[darwin]))
+left_side_step = Action(tree2.superparsexml("21 Fst_L",offsets=[darwin,hand]))
+right_side_step = Action(tree2.superparsexml("20 Fst_R",offsets=[darwin,hand]))
 
-kick = Action(tree2.superparsexml("26 F_PShoot_R",offsets = [darwin]))
+kick = Action(tree2.superparsexml("26 F_PShoot_R",offsets = [darwin,hand]))
 
-l_side_init = Action([lside1,lside2])
-l_side_walk = Action([lside3,lside4,lside5,lside6])
-
-r_side_init = Action([rside1,rside2])
-r_side_walk = Action([rside3,rside4,rside5,rside6])
+# l_side_init = Action([lside1,lside2])
+# l_side_walk = Action([lside3,lside4,lside5,lside6])
+#
+# r_side_init = Action([rside1,rside2])
+# r_side_walk = Action([rside3,rside4,rside5,rside6])
 
 # l_step = MotionSet(tree2.parsexml("10 ff_l_r"), speed=1.5, offsets=[darwin])
 # r_step = MotionSet(tree2.parsexml("9 ff_r_l"), speed=1.5, offsets=[darwin])
 boom_walk = Action([l_step,r_step])
-walk_init = Action([w1,w2])
-walk_motion = Action([w3,w4,w5,w6])
+# walk_init = Action([w1,w2])
+# walk_motion = Action([w3,w4,w5,w6])
 #------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
@@ -366,6 +360,7 @@ if __name__ == '__main__':
     rospy.init_node('Motion', anonymous=True)
     rospy.Subscriber("moco", String, moco,queue_size=1)
     feedback = rospy.Publisher('feedback', String, queue_size=1)
+    balance.execute()
     while True:
         #print head.tilt_angle,head.pan_angle
         # rospy.loginfo(head.tilt_angle)

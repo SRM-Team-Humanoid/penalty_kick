@@ -8,7 +8,7 @@ def nothing(x):
 img = np.zeros((300,300,3), np.uint8)
 cv2.namedWindow('image')
 
-# create trackbars for color change
+# create trackbars for color changeh
 cv2.createTrackbar('Y','image',0,255,nothing)
 cv2.createTrackbar('U','image',0,255,nothing)
 cv2.createTrackbar('V','image',0,255,nothing)
@@ -31,7 +31,7 @@ while True:
     cv2.imshow("Masking",mask)
     erode = cv2.erode(mask,None,iterations = 3)
     dilate = cv2.dilate(erode,None,iterations = 20)
-    im,contours,hierarchy = cv2.findContours(dilate,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    contours,hierarchy = cv2.findContours(dilate,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
     #if len(contours)>0:
         #c = max(contours, key=cv2.contourArea)

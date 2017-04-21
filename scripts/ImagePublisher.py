@@ -11,6 +11,8 @@ class GetSingleObstacle():
         self.x,self.y,self.w,self.h = x,y,w,h
         self.color = color
         self.end = x + w
+        # self.center = self.isCenter()
+
     def getObstacleMessage(self,frame):
         msg = Obstacle()
         msg.frame = frame
@@ -20,6 +22,9 @@ class GetSingleObstacle():
         msg.h = self.h
         msg.color = self.color
         return msg
+
+    # def isCenter(self):
+    #     return self.x+self.w/2 in range(210,420)
 
 class DefineObstacle():
 
@@ -78,21 +83,21 @@ class DefineObstacle():
 
 if __name__ == '__main__':
     ran = 30
-    b1 = [103-ran,186-ran,94-ran]
-    b2 = [103+ran,186+ran,94+ran]
+    b1 = [70-45,93-ran,179-ran]
+    b2 = [70+45,93+ran,179+ran]
     # y1 = [139-ran,141-ran,45-ran]
     # y2 = [139+ran,141+ran,45+ran]
-    y1 = [184 - ran-20, 123 - ran, 72 - ran]
-    y2 = [184 + ran+20, 123 + ran, 72 + ran]
-    r1 = [134-ran,121-ran,208-ran]
-    r2 = [134+ran,121+ran,208+ran]
+    y1 = [181 - 45, 163 - ran, 71 - ran]
+    y2 = [181 + 45, 163 + ran, 71 + ran]
+    r1 = [68-45,195-ran,119-ran]
+    r2 = [68+45,195+ran,119+ran]
 
     yellow = DefineObstacle(y1,y2)
     blue = DefineObstacle(b1,b2)
     red = DefineObstacle(r1,r2)
     for cp in range(1,6):
         try:
-            print "lllllllll",cp
+            print "Image chala",cp
             cap = cv2.VideoCapture(cp)
             _,image_frame = cap.read()
             blur = cv2.medianBlur(image_frame,3)

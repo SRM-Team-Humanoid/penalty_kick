@@ -23,18 +23,19 @@ class BlueObstacle():
         self.ledge = None
         self.redge = None
 
-    def update(self,obstacle):
-        if obstacle == None:
+    def update(self,obstacles):
+        if len(obstacles) == 0:
             self.found = False
             self.ledge = None
             self.redge = None
             self.center = False
         else:
             self.found = True
-            if self.x in range(210,420):
-                self.center = True
-            self.ledge = obstacle[0]
-            self.redge = obstacle[1]
+            for obstacle in obstacles:
+                if obstacle.x in range(210,420) or obstacle.x+obstacle.w in range(210,420):
+                    self.center = True
+                    self.ledge = obstacle.x
+                    self.redge = obstacle.x + obstacle.w
 
 class RedObstacle():
     def __init__(self):
@@ -69,24 +70,14 @@ class GetMultipleObstacles():
                 return True
         return False
 
-
-    def getBall(self):
-        Balls = self.getObjectsByColors('yellow')
-        if len(Balls) != 0:
-            xcen = Balls[0].x+Balls[0].w/2
-            ycen = Balls[0].y+Balls[0].h/2
-            return xcen,ycen
-        else:
-            return None
-
-    def getBlueObstacle(self):
-        obstacles = self.getObjectsByColors('blue')
-        if len(obstacles) != 0:
-            ledge = obstacles[0]
-            redge = obstacles[0].x+obstacles[0].w
-            return ledge,redge
-        else:
-            return None
+    # def getBlueObstacle(self):
+    #     obstacles = self.getObjectsByColors('blue')
+    #     if len(obstacles) != 0:
+    #         ledge = obstacles[0]
+    #         redge = obstacles[0].x+obstacles[0].w
+    #         return ledge,redge
+    #     else:
+    #         return None
 
     def getRedObstacle(self):
         obstacles = self.getObjectsByColors('red')
@@ -102,22 +93,8 @@ class GetMultipleObstacles():
         else:
             return True
 
-
-
-def ifBlueObstacleFound():
-    if blueObstacle.found:
-        return 'fo'
-    else:
-        return 'nofo'
-
-def ifOtherObstacleFound():
-    if otherObstacle.found:
-        return 'fo'
-    else:
-        return 'nofo'
-
- def allignX():
-     return blueObstacle.x + blueObstacle.w/2 in range(210, 420)
+ # def allignX():
+ #     return blueObstacle.x + blueObstacle.w/2 in range(210, 420)
 
 def appendObstacles(msg):
     global prevFrame, MultipleObstacles, BufferObstacles
@@ -127,7 +104,7 @@ def appendObstacles(msg):
             MultipleObstacles = BufferObstacles
             BufferObstacles = GetMultipleObstacles()
     BufferObstacles.obstacles_list.append(SingleObstacle)
-    blueObstacle.update(MultipleObstacles.getBlueObstacle())
+    blueObstacle.update(MultipleObstacles.getObjectsByColors('blue'))
     redObstacle.update(MultipleObstacles.getRedObstacle())
     yellowObstacle.update(MultipleObstacles.getYellowObstacle())
     prevFrame = msg.frame
@@ -170,8 +147,8 @@ if __name__ == '__main__':
     time.sleep(0.5)
     head_up = 60
     head_down = 40
+    raw_input()
     while True:
-
         # while not blueObstacle.found:
         #     moco.publish(gen_msg(80, 0))
         #     while redObstacle.found:
@@ -196,19 +173,20 @@ if __name__ == '__main__':
             time.sleep(.5)
         moco.publish(gen_msg(head_down, 0))
         time.sleep(0.5)
-        while blueObstacle.found or yellowObstacle.found:
+        while blueObstacle.center or yellowObstacle.found:
             if yellowObstacle.found:
                 isYellowObstacle = True
             if isYellowObstacle:
                 moco.publish("rs")
             else:
                 moco.publish("ls")
+            print isYellowObstacle
             time.sleep(0.5)
             escapedBlue = True
         if escapedBlue:
             moco.publish(gen_msg(head_up, 0))
             time.sleep(0.5)
-            while redObstacle.found:
+            while redObsstacle.found:
                 direction="ls"
                 moco.publish(direction)
                 moco.publish(direction)
@@ -222,3 +200,4 @@ if __name__ == '__main__':
         moco.publish("sw")
         time.sleep(0.5)
     rospy.spin()
+
