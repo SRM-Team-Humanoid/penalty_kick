@@ -17,18 +17,26 @@ down_scan = 50
 #-----------------------------
 
 class GetMultipleObstacles():
-    def __init__(self):
+    def __init__(self,offset):
         self.obstacles_list = []
+        self.offset = offset
+        self.side_offset = 120
     def getObjectsByColors(self, objectColor):
         return [ob for ob in self.obstacles_list if ob.color == objectColor]
 
     def getCenterObstacle(self):
         for ob in self.obstacles_list:
-            print "ob " + ob.color+ " "+str(ob.w)+" "+str(ob.x)+" "+str((ob.x+ob.w)/2)
-            if ob.x <400 and  ob.x+ob.w >240:
-                print "ob "+ str(ob.x)+ " "+ob.color
-                return True
-        return False
+             print "ob " + ob.color+ " "+str(ob.w)+" "+str(ob.x)+" "+str((ob.x+ob.w)/2)
+             if ob.x < 640-self.offset and  ob.x+ob.w >self.offset:
+                 print "ob "+ str(ob.x)+ " "+ob.color
+                 return "center"
+             elif ob.x < self.side_offset and ob.w>0:
+                 print "left ob " + str(ob.x + ob.w) + " " + ob.color
+                 return "left"
+             elif ob.x > 640-self.side_offset:
+                 print "right ob " + str(ob.x) + " " + ob.color
+                 return "right"
+        return "no-ob"
 
     def getRedObstacle(self):
             for ob in self.obstacles_list:
@@ -59,7 +67,7 @@ def appendObstacles(msg):
     if msg.frame != prevFrame:
         if BufferObstacles != None:
             MultipleObstacles = BufferObstacles
-            BufferObstacles = GetMultipleObstacles()
+            BufferObstacles = GetMultipleObstacles(offset = 120)
     BufferObstacles.obstacles_list.append(SingleObstacle)
     prevFrame = msg.frame
 
@@ -97,22 +105,26 @@ def sideWalk(steps):
         print "left"
         moco.publish(gen_msg(head_down, head_left))
         time.sleep(delay)
-        for i in range(1,  steps + 1):
-            if MultipleObstacles.getCenterObstacle():
+        raw_input("start side walk")
+        for i in range(1,steps + 1):
+            if MultipleObstacles.getCenterObstacle()=="center":
                 broken = True
                 break
             else:
                 moco.publish('ls')
+                time.sleep(0.5)
         if broken:
             print "right"
             moco.publish(gen_msg(head_down, head_right))
             time.sleep(delay)
+            raw_input("start side walk2")
             for j in range(1, i+steps + 1):
-                if MultipleObstacles.getCenterObstacle():
+                if MultipleObstacles.getCenterObstacle() == "center":
                     broken = True
                     break
                 else:
                     moco.publish('rs')
+                    time.sleep(0.5)
             if j == i+steps:
                 broken = False
         if broken:
@@ -122,8 +134,8 @@ def sideWalk(steps):
 
 if __name__ == '__main__':
     prevFrame = 0
-    MultipleObstacles = GetMultipleObstacles()
-    BufferObstacles = GetMultipleObstacles()
+    MultipleObstacles = GetMultipleObstacles(offset = 120)
+    BufferObstacles = GetMultipleObstacles(offset = 120)
     rospy.init_node('Intermediate', anonymous=True)
     rospy.Subscriber("obstacles", Obstacle, appendObstacles)
     rospy.Subscriber("feedback", String, feedback_handler)
@@ -132,7 +144,7 @@ if __name__ == '__main__':
     head_down = 35
     head_left = 80
     head_right = -80
-    delay =1
+    delay = 0.5
     raw_input()
     isRedObstacle = checkRed()
     moco.publish(gen_msg(head_down, 0))
@@ -146,11 +158,17 @@ if __name__ == '__main__':
              isRedObstacle = False
          moco.publish(gen_msg(head_down, 0))
          time.sleep(delay)
-      if MultipleObstacles.getCenterObstacle():
-        sideWalk(steps=2)
+      if MultipleObstacles.getCenterObstacle() == "center":
+        sideWalk(steps=5)
         isRedObstacle = checkRed()
         moco.publish(gen_msg(head_down, 0))
         time.sleep(delay)
+      elif MultipleObstacles.getCenterObstacle() == "left":
+          print "left ob -- moving right"
+          moco.publish('rs')
+      elif MultipleObstacles.getCenterObstacle() == "right":
+          print "right ob -- moving left"
+          moco.publish('ls')
       else:
         moco.publish("sw")
       print isRedObstacle

@@ -37,7 +37,8 @@ class Dxl(object):
         if debug:
             dxl_io.set_moving_speed(dict(zip(ids,debug_speeds)))
         else:
-            dxl_io.set_moving_speed(dict(zip(ids, unleash)))
+            dxl_io.set_moving_speed(dict(zip(ids[:-2], unleash)))
+        dxl_io.set_moving_speed({19:200,20:200})
 
     def directWrite(self,dicta):
         self.dxl_io.set_goal_position(dicta)
@@ -299,23 +300,23 @@ def moco(data):
         balance.execute()
 
 #----------------------------------------------------------------------------------------------------------------
-darwin = {1: 90, 2: -90, 3: 67.5, 4: -67.5, 7: 45, 8: -45, 9: 'i', 10: 'i', 13: 'i', 14: 'i', 17: 'i', 18: 'i'}
+darwin = {1: 90, 2: -90, 3: 45, 4: -45, 7: 45, 8: -45, 9: 'i', 10: 'i', 13: 'i', 14: 'i', 17: 'i', 18: 'i'}
 arm = {1:45, 2:-45}
-hand = {5: 90, 6: -90}
+hand = {5: 45, 6: -45}
 hand_open = {5: -60, 6: 60}
 
 tree = XmlTree(path+'data.xml')
 tree2 = XmlTree(path+'soccer.xml')
 tree3 = XmlTree(path+'fight.xml')
-balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin,hand])
-lskick = MotionSet(tree2.parsexml("40 Pass_L"), offsets=[darwin,hand],speed = 1.5)
-rskick = MotionSet(tree2.parsexml("39 Pass_R"), offsets=[darwin,hand],speed = 1.5)
+balance = MotionSet(tree.parsexml("152 Balance"), offsets=[darwin, hand])
+lskick = MotionSet(tree2.parsexml("40 Pass_L"), offsets=[darwin, hand],speed = 1.5)
+rskick = MotionSet(tree2.parsexml("39 Pass_R"), offsets=[darwin, hand],speed = 1.5)
 #kick = MotionSet(tree.parsexml("19 R kick"),speed=2,offsets=[darwin])
-r_turn = MotionSet(tree2.parsexml("27 RT"),speed=1.2,offsets=[darwin])
-l_turn = MotionSet(tree2.parsexml("28 LT"),speed=1.2,offsets=[darwin])
+r_turn = MotionSet(tree2.parsexml("27 RT"),speed=1.2,offsets=[darwin, hand])
+l_turn = MotionSet(tree2.parsexml("28 LT"),speed=1.2,offsets=[darwin, hand])
 
-l_step = Action(tree.superparsexml("24 F_E_L",offsets=[darwin,hand]))
-r_step = Action(tree.superparsexml("25 F_E_R",offsets=[darwin,hand]))
+l_step = Action(tree.superparsexml("24 F_E_L",offsets=[darwin, hand]))
+r_step = Action(tree.superparsexml("25 F_E_R",offsets=[darwin, hand]))
 
 # lside1 = MotionSet(tree.parsexml("80 L_S_L"), offsets=[darwin,hand,arm],speed = 2.1)
 # lside2 = MotionSet(tree.parsexml("81 "), offsets=[darwin,hand,arm], speed = 2.1)
@@ -333,10 +334,10 @@ r_step = Action(tree.superparsexml("25 F_E_R",offsets=[darwin,hand]))
 
 
 # left_side_step = Action(tree2.superparsexml("19 L",offsets=[darwin]))
-left_side_step = Action(tree2.superparsexml("21 Fst_L",offsets=[darwin,hand]))
-right_side_step = Action(tree2.superparsexml("20 Fst_R",offsets=[darwin,hand]))
+left_side_step = Action(tree2.superparsexml("21 Fst_L",offsets=[darwin, hand]))
+right_side_step = Action(tree2.superparsexml("20 Fst_R",offsets=[darwin, hand]))
 
-kick = Action(tree2.superparsexml("26 F_PShoot_R",offsets = [darwin,hand]))
+kick = Action(tree2.superparsexml("26 F_PShoot_R",offsets = [darwin, hand]))
 
 # l_side_init = Action([lside1,lside2])
 # l_side_walk = Action([lside3,lside4,lside5,lside6])
