@@ -70,8 +70,8 @@
       <file leaf-file-name="trial.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/trial.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1713">
-              <caret line="34" column="30" lean-forward="true" selection-start-line="34" selection-start-column="30" selection-end-line="34" selection-end-column="30" />
+            <state relative-caret-position="147">
+              <caret line="158" column="22" lean-forward="false" selection-start-line="158" selection-start-column="9" selection-end-line="158" selection-end-column="22" />
               <folding>
                 <element signature="e#22#34#0" expanded="true" />
                 <marker date="1492868711073" expanded="true" signature="1856:1940" ph="..." />
@@ -789,8 +789,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/trial.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1713">
-          <caret line="34" column="30" lean-forward="true" selection-start-line="34" selection-start-column="30" selection-end-line="34" selection-end-column="30" />
+        <state relative-caret-position="147">
+          <caret line="158" column="22" lean-forward="false" selection-start-line="158" selection-start-column="9" selection-end-line="158" selection-end-column="22" />
           <folding>
             <element signature="e#22#34#0" expanded="true" />
             <marker date="1492868711073" expanded="true" signature="1856:1940" ph="..." />
