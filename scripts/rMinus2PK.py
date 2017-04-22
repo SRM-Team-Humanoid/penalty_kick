@@ -10,7 +10,7 @@ from copy import deepcopy
 import rospy
 from std_msgs.msg import String
 
-path = "/home/arpit/ctkin_ws/src/penalty_kick/scripts/"
+path = "/home/odroid/catkin_ws/src/penalty_kick/scripts/"
 
 class Dxl(object):
     def __init__(self,port_id=0, scan_limit=25, lock=-1,debug=False):
@@ -284,9 +284,9 @@ def moco(data):
     elif cmd == 'lk':
         lskick.execute()
     elif cmd == 'ls':
-        left_side_step.execute()
+        left_side_step.execute(speed = 1.2)
     elif cmd == 'rs':
-        right_side_step.execute()
+        right_side_step.execute(speed = 1.2)
     elif cmd =='ba':
         balance.execute()
     elif cmd == 'sk':
@@ -295,6 +295,9 @@ def moco(data):
         balance.execute()
         time.sleep(0.5)
         l_step.execute(speed = 2)
+	time.sleep(0.01)
+	balance.execute()
+	time.sleep(0.01)
         r_step.execute(speed = 2)
         time.sleep(0.5)
         balance.execute()
@@ -347,7 +350,7 @@ kick = Action(tree2.superparsexml("26 F_PShoot_R",offsets = [darwin, hand]))
 
 # l_step = MotionSet(tree2.parsexml("10 ff_l_r"), speed=1.5, offsets=[darwin])
 # r_step = MotionSet(tree2.parsexml("9 ff_r_l"), speed=1.5, offsets=[darwin])
-boom_walk = Action([l_step,r_step])
+#boom_walk = Action([l_step,r_step])
 # walk_init = Action([w1,w2])
 # walk_motion = Action([w3,w4,w5,w6])
 #------------------------------------------------------------------------------------------------------------------
@@ -362,8 +365,9 @@ if __name__ == '__main__':
     rospy.Subscriber("moco", String, moco,queue_size=1)
     feedback = rospy.Publisher('feedback', String, queue_size=1)
     balance.execute()
+    raw_input("start")
     while True:
         #print head.tilt_angle,head.pan_angle
-        # rospy.loginfo(head.tilt_angle)
+        #rospy.loginfo(head.tilt_angle)
         dxl.publish(feedback)
     rospy.spin()

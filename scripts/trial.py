@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 import rospy
 from penalty_kick.msg import Obstacle
@@ -103,19 +104,20 @@ def sideWalk(steps):
     #TODO remove all comments after back walk
     #broken = True
     #while broken:
-        broken = False
-        print "left"
-        moco.publish(gen_msg(head_down, head_left))
-        time.sleep(delay)
-        #raw_input("start side walk")
-        print "starting side walk..."
-        for i in range(1,steps + 1):
-            if MultipleObstacles.getCenterObstacle()=="center":
-                broken = True
-                break
-            else:
-                moco.publish('ls')
-                time.sleep(0.5)
+        if not broken:
+        	print "left"
+        	moco.publish(gen_msg(head_down, head_left))
+        	time.sleep(delay)
+        	#raw_input("start side walk")
+        	print "starting side walk..."
+
+        	for i in range(1,steps + 1):
+            		if MultipleObstacles.getCenterObstacle()=="center":
+                		broken = True
+                		break
+            		else:
+                		moco.publish('ls')
+                		time.sleep(0.5)
         if broken:
             print "right"
             moco.publish(gen_msg(head_down, head_right))
@@ -124,16 +126,10 @@ def sideWalk(steps):
             print "starting side walk2..."
             for j in range(1, i+steps + 1):
                 if MultipleObstacles.getCenterObstacle() == "center":
-                    broken = True
                     break
                 else:
                     moco.publish('rs')
                     time.sleep(0.5)
-            if j == i+steps:
-                broken = False
-        if broken:
-                # to do back walk
-                pass
 
 
 if __name__ == '__main__':
@@ -153,6 +149,7 @@ if __name__ == '__main__':
     isRedObstacle = checkRed()
     moco.publish(gen_msg(head_down, 0))
     time.sleep(delay)
+    broken = False
     print isRedObstacle
     raw_input()
     while True:
@@ -178,6 +175,7 @@ if __name__ == '__main__':
           moco.publish('ls')
       else:
         moco.publish("sw")
+	broken = False
       print isRedObstacle
       #raw_input()
       print "TAKING NEXT STEP"

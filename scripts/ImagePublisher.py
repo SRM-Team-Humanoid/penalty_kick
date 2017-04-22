@@ -52,12 +52,20 @@ class DefineObstacle():
 
     def drawVisibleRectangleAroundObject(self,x,y,w,h,f):
         rectangleColor = self.getColorForRectangle()
-        cv2.rectangle(f, (x,y), (x+w,y+h), rectangleColor, 2)
+        #cv2.rectangle(f, (x,y), (x+w,y+h), rectangleColor, 2)
 
     def getContoursForObject(self,hsv,MultipleObstacles,f):
         mask = cv2.inRange(hsv, (np.array([self.low[0],self.low[1],self.low[2]])), (np.array([self.high[0],self.high[1],self.high[2]])))
-        erode = cv2.erode(mask,None,iterations = 3)
-        dilate = cv2.dilate(erode,None,iterations = 20)
+        if self.color == 'blue':
+            erode = cv2.erode(mask,None,iterations = 1)
+            dilate = cv2.dilate(erode,None,iterations = 20)
+        elif self.color == 'red':
+            erode = cv2.erode(mask,None,iterations = 4)
+            dilate = cv2.dilate(erode,None,iterations = 10)
+        elif self.color == 'yellow':
+            erode = cv2.erode(mask,None,iterations = 2)
+            dilate = cv2.dilate(erode,None,iterations = 20)
+        
         try:
             contours,hierarchy = cv2.findContours(dilate,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
         except:
@@ -69,7 +77,6 @@ class DefineObstacle():
                     x, y, w, h = cv2.boundingRect(cnt)
                     self.drawVisibleRectangleAroundObject(x,y,w,h,f)
                     MultipleObstacles.append(GetSingleObstacle(x,y,w,h,self.color))
-
         else:
             if len(contours)>0:
                 cnt = max(contours, key=cv2.contourArea)
@@ -83,28 +90,30 @@ class DefineObstacle():
 
 if __name__ == '__main__':
     ran = 30
-    b1 = [70-45,93-ran,179-ran]
-    b2 = [70+45,93+ran,179+ran]
+    ranb = 60
+    r1 = [113-ran,135-ran,189-ran]
+    r2 = [113+ran,135+ran,189+ran]
     # y1 = [139-ran,141-ran,45-ran]
     # y2 = [139+ran,141+ran,45+ran]
-    y1 = [181 - 45, 163 - ran, 71 - ran]
-    y2 = [181 + 45, 163 + ran, 71 + ran]
-    r1 = [68-45,195-ran,119-ran]
-    r2 = [68+45,195+ran,119+ran]
+    y1 = [158 - 45, 72 - ran, 121 - ran]
+    y2 = [158 + 45, 72 + ran, 121 + ran]
+    b1 = [92-ranb,165-ran,75-ran]
+    b2 = [92+ranb,165+ran,75+ran]
 
     yellow = DefineObstacle(y1,y2)
     blue = DefineObstacle(b1,b2)
     red = DefineObstacle(r1,r2)
-    for cp in range(1,6):
-        try:
-            print "Image chala",cp
-            cap = cv2.VideoCapture(cp)
-            _,image_frame = cap.read()
-            blur = cv2.medianBlur(image_frame,3)
-            hsv = cv2.cvtColor(blur,cv2.COLOR_BGR2YUV)
-            break
-        except:
-            continue
+    # for cp in range(1,6):
+    #     try:
+    #         print "Image chala",cp
+    #         cap = cv2.VideoCapture(cp)
+    #         _,image_frame = cap.read()
+    #         blur = cv2.medianBlur(image_frame,3)
+    #         hsv = cv2.cvtColor(blur,cv2.COLOR_BGR2YUV)
+    #         break
+    #     except:
+    #         continue
+    cap = cv2.VideoCapture(0)
     obstaclesPublisher = rospy.Publisher('obstacles', Obstacle, queue_size = 1)
     rospy.init_node('input_pub', anonymous=True)
     frame = 1
@@ -132,7 +141,7 @@ if __name__ == '__main__':
 
             frame+=1
 
-            cv2.imshow("feed",image_frame)
+            #cv2.imshow("feed",image_frame)
             k = cv2.waitKey(25)
             if k & 0xff == ord('q'):
                 break
@@ -140,3 +149,4 @@ if __name__ == '__main__':
         cv2.destroyAllWindows()
     except rospy.ROSInterruptException:
         print "lele"
+

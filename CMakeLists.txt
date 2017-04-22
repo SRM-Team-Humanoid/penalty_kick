@@ -9,7 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   sensor_msgs
-  image_geometry
   message_generation
 )
 find_package(OpenCV REQUIRED)
