@@ -52,13 +52,13 @@ class DefineObstacle():
 
     def drawVisibleRectangleAroundObject(self,x,y,w,h,f):
         rectangleColor = self.getColorForRectangle()
-        #cv2.rectangle(f, (x,y), (x+w,y+h), rectangleColor, 2)
+        cv2.rectangle(f, (x,y), (x+w,y+h), rectangleColor, 2)
 
     def getContoursForObject(self,hsv,MultipleObstacles,f):
         mask = cv2.inRange(hsv, (np.array([self.low[0],self.low[1],self.low[2]])), (np.array([self.high[0],self.high[1],self.high[2]])))
         if self.color == 'blue':
             erode = cv2.erode(mask,None,iterations = 1)
-            dilate = cv2.dilate(erode,None,iterations = 20)
+            dilate = cv2.dilate(erode,None,iterations = 15)
         elif self.color == 'red':
             erode = cv2.erode(mask,None,iterations = 4)
             dilate = cv2.dilate(erode,None,iterations = 10)
@@ -97,8 +97,8 @@ if __name__ == '__main__':
     # y2 = [139+ran,141+ran,45+ran]
     y1 = [158 - 45, 72 - ran, 121 - ran]
     y2 = [158 + 45, 72 + ran, 121 + ran]
-    b1 = [92-ranb,165-ran,75-ran]
-    b2 = [92+ranb,165+ran,75+ran]
+    b1 = [92-45,165-ran,75-ran]
+    b2 = [92+45,165+ran,75+ran]
 
     yellow = DefineObstacle(y1,y2)
     blue = DefineObstacle(b1,b2)
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     #         break
     #     except:
     #         continue
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     obstaclesPublisher = rospy.Publisher('obstacles', Obstacle, queue_size = 1)
     rospy.init_node('input_pub', anonymous=True)
     frame = 1
@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
             frame+=1
 
-            #cv2.imshow("feed",image_frame)
+            cv2.imshow("feed",image_frame)
             k = cv2.waitKey(25)
             if k & 0xff == ord('q'):
                 break

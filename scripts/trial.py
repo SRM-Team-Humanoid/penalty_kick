@@ -107,7 +107,8 @@ def sideWalk(steps):
     i =0
     if not broken:
         print "left"
-        moco.publish(gen_msg(head_down, head_left))
+        while not float_check(pan_angle,head_left):
+            moco.publish(gen_msg(head_down, head_left))
         time.sleep(delay)
         #raw_input("start side walk")
         print "starting side walk..."
@@ -120,12 +121,15 @@ def sideWalk(steps):
                     time.sleep(0.5)
     if broken:
         print "right"
-        moco.publish(gen_msg(head_down, head_right))
+        while not float_check(pan_angle, head_right):
+            moco.publish(gen_msg(head_down, head_right))
         time.sleep(delay)
         #raw_input("start side walk2")
         print "starting side walk2..."
         for j in range(1, i+steps + 1):
             if MultipleObstacles.getCenterObstacle() == "ob-close":
+                moco.publish("sw")
+                broken = False
                 break
             else:
                 moco.publish('rs')
@@ -155,13 +159,13 @@ if __name__ == '__main__':
       if isRedObstacle:
          print "red obstacle detected on path"
          if not checkRed():
-             sideWalk(steps=3)
+             sideWalk(steps=2)
              isRedObstacle = False
          moco.publish(gen_msg(head_down, 0))
          time.sleep(delay)
          #raw_input()
       if MultipleObstacles.getCenterObstacle() == "center":
-        sideWalk(steps=5)
+        sideWalk(steps=2)
         time.sleep(delay)
         isRedObstacle = checkRed()
         moco.publish(gen_msg(head_down, 0))
