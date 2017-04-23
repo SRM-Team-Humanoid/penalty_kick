@@ -4,7 +4,7 @@ from penalty_kick.msg import Obstacle
 from std_msgs.msg import String
 from ImagePublisher import GetSingleObstacle
 import time
-from readchar import readchar
+import readchar
 import operator
 
 
@@ -27,7 +27,10 @@ class GetMultipleObstacles():
     def getCenterObstacle(self):
         for ob in self.obstacles_list:
              print "ob " + ob.color+ " "+str(ob.w)+" "+str(ob.x)+" "+str((ob.x+ob.w)/2)
-             if ob.x < 640-self.offset and  ob.x+ob.w >self.offset:
+             if ob.y + ob.h > 150 :
+                 print "ob-close "+ str(ob.x + ob.h)
+                 return "ob-close"
+             elif ob.x < 640-self.offset and  ob.x+ob.w >self.offset:
                  print "ob "+ str(ob.x)+ " "+ob.color
                  return "center"
              elif ob.x < self.side_offset and ob.w>0:
@@ -100,35 +103,35 @@ def checkRed():
     return MultipleObstacles.getRedObstacle()
 
 def sideWalk(steps):
-	global broken
-	i =0
-        if not broken:
-        	print "left"
-        	moco.publish(gen_msg(head_down, head_left))
-        	time.sleep(delay)
-        	#raw_input("start side walk")
-        	print "starting side walk..."
-
-        	for i in range(1,steps + 1):
-            		if MultipleObstacles.getCenterObstacle()=="center":
-                		broken = True
-                		break
-            		else:
-                		moco.publish('ls')
-                		time.sleep(0.5)
-        if broken:
-            print "right"
-            moco.publish(gen_msg(head_down, head_right))
-            time.sleep(delay)
-            #raw_input("start side walk2")
-            print "starting side walk2..."
-            for j in range(1, i+steps + 1):
-                if MultipleObstacles.getCenterObstacle() == "center":
+    global broken
+    i =0
+    if not broken:
+        print "left"
+        moco.publish(gen_msg(head_down, head_left))
+        time.sleep(delay)
+        #raw_input("start side walk")
+        print "starting side walk..."
+        for i in range(1,steps + 1):
+                if MultipleObstacles.getCenterObstacle()=="ob-close":
+                    broken = True
                     break
                 else:
-                    moco.publish('rs')
+                    moco.publish('ls')
                     time.sleep(0.5)
+    if broken:
+        print "right"
+        moco.publish(gen_msg(head_down, head_right))
+        time.sleep(delay)
+        #raw_input("start side walk2")
+        print "starting side walk2..."
+        for j in range(1, i+steps + 1):
+            if MultipleObstacles.getCenterObstacle() == "ob-close":
+                break
+            else:
+                moco.publish('rs')
+                time.sleep(0.5)
 
+broken = False
 
 if __name__ == '__main__':
     prevFrame = 0
@@ -138,13 +141,11 @@ if __name__ == '__main__':
     rospy.Subscriber("obstacles", Obstacle, appendObstacles)
     rospy.Subscriber("feedback", String, feedback_handler)
     moco = rospy.Publisher('moco', String, queue_size=1)
-    broken = False
     head_up = 90
-    head_down = 35
+    head_down = 20
     head_left = 80
     head_right = -80
     delay = 1
-    raw_input("Start?")
     isRedObstacle = checkRed()
     moco.publish(gen_msg(head_down, 0))
     time.sleep(delay)
@@ -154,7 +155,7 @@ if __name__ == '__main__':
       if isRedObstacle:
          print "red obstacle detected on path"
          if not checkRed():
-             sideWalk(steps=5)
+             sideWalk(steps=3)
              isRedObstacle = False
          moco.publish(gen_msg(head_down, 0))
          time.sleep(delay)
@@ -173,9 +174,8 @@ if __name__ == '__main__':
           moco.publish('ls')
       else:
         moco.publish("sw")
-	broken = False
+        broken = False
       print isRedObstacle
       #raw_input()
       print "TAKING NEXT STEP"
       time.sleep(delay)
-    rospy.spin()

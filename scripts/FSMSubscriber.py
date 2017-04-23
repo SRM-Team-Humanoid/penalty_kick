@@ -295,17 +295,20 @@ if __name__ == '__main__':
     moco.publish("ba")
     time.sleep(0.5)
     raw_input("Begin")
-    while tilt_angle>32.0:
+    while True:
+        while tilt_angle>32.0:
+            while not allignX():
+                find()
+            print tilt_angle
+            moco.publish("sw")
+            time.sleep(1)
+            finalAllign()
+            time.sleep(0.5)
+        print("ho gaya mera")
+        moco.publish("sk")
+        time.sleep(2)
         while not allignX():
             find()
-        print tilt_angle
-        moco.publish("sw")
-        time.sleep(1)
-        finalAllign()
-        time.sleep(0.5)
-    print("ho gaya mera")
-    moco.publish("sk")
-    time.sleep(2)
 
 
 

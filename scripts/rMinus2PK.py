@@ -10,7 +10,7 @@ from copy import deepcopy
 import rospy
 from std_msgs.msg import String
 
-path = "/home/odroid/catkin_ws/src/penalty_kick/scripts/"
+path = "/home/warr/cdatkin_ws/src/penalty_kick/scripts/"
 
 class Dxl(object):
     def __init__(self,port_id=0, scan_limit=25, lock=-1,debug=False):
@@ -365,7 +365,6 @@ if __name__ == '__main__':
     rospy.Subscriber("moco", String, moco,queue_size=1)
     feedback = rospy.Publisher('feedback', String, queue_size=1)
     balance.execute()
-    raw_input("start")
     while True:
         #print head.tilt_angle,head.pan_angle
         #rospy.loginfo(head.tilt_angle)
